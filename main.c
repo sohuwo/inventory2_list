@@ -198,10 +198,11 @@ void print(void)
 }
 
 //save: Prompts the user to enter a filename, and save it.
-/*
+
 void save()
 {
 	FILE *fp;
+	struct part *p;
 	char route[100] = "C:/Users/Freeuser/source/repos/test/test/";
 	char filename[100];
 
@@ -215,7 +216,14 @@ void save()
 		return;
 	}
 
-	fwrite(inventory, sizeof(inventory[0]), num_parts, fp);
+	for (p = inventory; p != NULL; p = p->next)
+	{
+		data.number = p->number;
+		data.name = p->name;
+		data.on_hand = p->on_hand;
+		fwrite(&data, sizeof(struct file_part), 1, fp);
+	}	
+	
 	fclose(fp);
 	printf("Save successfully\n");
 
@@ -227,6 +235,7 @@ void save()
 void recover()
 {
 	FILE *fp;
+	struct part *p;
 	char route[100] = "C:/Users/Freeuser/source/repos/test/test/";
 	char filename[100];
 
@@ -240,10 +249,28 @@ void recover()
 		return;
 	}
 
-	num_parts = 0;
-	while (fread(&inventory[num_parts], sizeof(struct part), 1, fp) != 0)
-		num_parts++; fclose(fp);
+	p = malloc(sizeof(struct part));
+	if (p == NULL)
+	{
+		printf("Database is full; can't"
+			"add  more parts.\n");
+		return;
+	}
+
+	if (fread(&data, sizeof(struct file_part), 1, fp) != 0)
+	{
+		p->name = data.name;
+		p->number = data.number;
+		p->on_hand = data.on_hand;
+	}
+	inventory = p;
+	while (fread(&data, sizeof(struct file_part), 1, fp) != 0)
+	{
+		
+	}
+
+	fclose(fp);
 	printf("Recover successfully\n");
 
 	return;
-}*/
+}
