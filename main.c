@@ -143,11 +143,11 @@ void search(void)
 
 	printf("Enter part number: ");
 	scanf("%d", &number);
-	i = find_part(number);
-	if (i >= 0)
+	p = find_part(number);
+	if (p != NULL)
 	{
-		printf("Part name: %s\n", inventory[i].name);
-		printf("Quantity on hand: %d\n", inventory[i].on_hand);
+		printf("Part name: %s\n", p->name);
+		printf("Quantity on hand: %d\n", p->on_hand);
 	}
 	else
 		printf("Part not found.\n");
@@ -161,16 +161,17 @@ void search(void)
 
 void update(void)
 {
-	int i, number, change;
+	int number, change;
+	struct part *p;
 
 	printf("Enter part number: ");
 	scanf("%d", &number);
-	i = find_part(number);
-	if (i >= 0)
+	p = find_part(number);
+	if (p != NULL)
 	{
 		printf("Enter change in quantity on hand: ");
 		scanf("%d", &change);
-		inventory[i].on_hand += change;
+		p->on_hand += change;
 	}
 	else
 		printf("Part not found.\n");
@@ -178,19 +179,18 @@ void update(void)
 
 //print: Prints a listing of all parts in the database,
 //       showing the part number, part name, and
-//       quantity on hand. Parts are printed in the
-//       order in which they were entered into the
-//       database.
+//       quantity on hand. Part numbers will appear in
+//       ascending order.
 
 void print(void)
 {
-	int i;
+	struct part *p;
 
 	printf("Part Number    Part Name                    "
 		"Quantity on Hand\n");
-	for (i = 0; i < num_parts; i++)
-		printf("%7d        %-25s%11d\n", inventory[i].number,
-			inventory[i].name, inventory[i].on_hand);
+	for (p = inventory; p != NULL; p = p->next)
+		printf("%7d        %-25s%11d\n", p->number,
+			p->name, p->on_hand);
 }
 
 //save: Prompts the user to enter a filename, and save it.
