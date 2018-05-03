@@ -16,7 +16,14 @@ struct part
 	struct part *next;
 };
 
-struct part *inventory = NULL; 
+struct file_part
+{
+	int number;
+	char name[NAME_LEN + 1];
+	int on_hand;
+}data;
+
+struct part *inventory = NULL;
 //points to first part
 
 struct part *find_part(int number);
@@ -24,8 +31,8 @@ void insert(void);
 void search(void);
 void update(void);
 void print(void);
-void save(void);
-void recover(void);
+//void save(void);
+//void recover(void);
 
 //main: Prompts the user to enter an operation code,
 //      then calls a function to perform the requested
@@ -54,11 +61,10 @@ int main(void)
 		case 'p':print();
 			break;
 		case 'q':return 0;
-			break;
-		case 'd':save();
-			break;
-		case 'r':recover();
-			break;
+		//case 'd':save();
+		//	break;
+		//case 'r':recover();
+		//	break;
 		default:printf("Illegal code\n");
 		}
 		printf("\n");
@@ -75,8 +81,7 @@ struct part *find_part(int number)
 {
 	struct part *p;
 
-	for (p = inventory; p != NULL && number\
-		> p->number; p = p->next)
+	for (p = inventory; p != NULL && number> p->number; p = p->next)
 		;
 	if (p != NULL && number == p->number)
 		return p;
@@ -95,7 +100,7 @@ void insert(void)
 	struct part *cur, *prev, *new_node;
 
 	new_node = malloc(sizeof(struct part));
-	if (new_node = NULL)
+	if (new_node == NULL)
 	{
 		printf("Database is full; can't"
 			"add  more parts.\n");
@@ -106,9 +111,8 @@ void insert(void)
 	scanf("%d", &new_node->number);
 
 	for (cur = inventory, prev = NULL; \
-		cur != NULL && new_node->number > \
-		cur->number; prev = cur, cur = \
-		cur->next)
+		cur != NULL && new_node->number > cur->number; \
+		prev = cur, cur = cur->next)
 		;
 	if (cur != NULL && new_node->number\
 		== cur->number)
@@ -194,7 +198,7 @@ void print(void)
 }
 
 //save: Prompts the user to enter a filename, and save it.
-
+/*
 void save()
 {
 	FILE *fp;
@@ -242,4 +246,4 @@ void recover()
 	printf("Recover successfully\n");
 
 	return;
-}
+}*/
