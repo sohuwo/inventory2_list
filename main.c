@@ -4,9 +4,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "readline.h"
 
 #define NAME_LEN 25
+#define FILE_ROUTE "D:/C/TEST/test/Debug/"
 
 struct part
 {
@@ -61,10 +63,10 @@ int main(void)
 		case 'p':print();
 			break;
 		case 'q':return 0;
-		//case 'd':save();
-		//	break;
-		//case 'r':recover();
-		//	break;
+			//case 'd':save();
+			//	break;
+			//case 'r':recover();
+			//	break;
 		default:printf("Illegal code\n");
 		}
 		printf("\n");
@@ -203,7 +205,7 @@ void save()
 {
 	FILE *fp;
 	struct part *p;
-	char route[100] = "C:/Users/Freeuser/source/repos/test/test/";
+	char route[100] = FILE_ROUTE;
 	char filename[100];
 
 	printf("Enter name of output file: ");
@@ -219,11 +221,11 @@ void save()
 	for (p = inventory; p != NULL; p = p->next)
 	{
 		data.number = p->number;
-		data.name = p->name;
+		sprintf(data.name,"%s", p->name);
 		data.on_hand = p->on_hand;
 		fwrite(&data, sizeof(struct file_part), 1, fp);
-	}	
-	
+	}
+
 	fclose(fp);
 	printf("Save successfully\n");
 
@@ -235,10 +237,10 @@ void save()
 void recover()
 {
 	FILE *fp;
-	struct part *p;
-	char route[100] = "C:/Users/Freeuser/source/repos/test/test/";
+	struct part *new_node, *prev = NULL, *cur;
+	char route[100] = FILE_ROUTE;
 	char filename[100];
-
+	
 	printf("Enter name of input file: ");
 	scanf("%s", filename);
 	strcat(route, filename);
@@ -249,8 +251,8 @@ void recover()
 		return;
 	}
 
-	p = malloc(sizeof(struct part));
-	if (p == NULL)
+	new_node = malloc(sizeof(struct part));
+	if (new_node == NULL)
 	{
 		printf("Database is full; can't"
 			"add  more parts.\n");
@@ -259,16 +261,30 @@ void recover()
 
 	if (fread(&data, sizeof(struct file_part), 1, fp) != 0)
 	{
-		p->name = data.name;
-		p->number = data.number;
-		p->on_hand = data.on_hand;
+		sprintf(new_node->name, "%s", data.name);
+		new_node->number = data.number;
+		new_node->on_hand = data.on_hand;
+		new_node->next = NULL;
 	}
-	inventory = p;
+	else
+		return;
+
+	inventory = new_node;
+
 	while (fread(&data, sizeof(struct file_part), 1, fp) != 0)
 	{
-		
+		sprintf(new_node->name, "%s", data.name);
+		new_node->number = data.number;
+		new_node->on_hand = data.on_hand;
+
+		for (cur = inventory, prev = NULL; \
+			cur != NULL; prev = cur, cur = cur->next)
+			;
+		new_node->next = cur;
+		prev->next = new_node;
 	}
 
+	free(new_node);
 	fclose(fp);
 	printf("Recover successfully\n");
 
