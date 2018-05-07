@@ -33,8 +33,8 @@ void insert(void);
 void search(void);
 void update(void);
 void print(void);
-//void save(void);
-//void recover(void);
+void save(void);
+void recover(void);
 
 //main: Prompts the user to enter an operation code,
 //      then calls a function to perform the requested
@@ -63,10 +63,10 @@ int main(void)
 		case 'p':print();
 			break;
 		case 'q':return 0;
-			//case 'd':save();
-			//	break;
-			//case 'r':recover();
-			//	break;
+	    case 'd':save();
+				break;
+	    case 'r':recover();
+				break;
 		default:printf("Illegal code\n");
 		}
 		printf("\n");
@@ -221,7 +221,7 @@ void save()
 	for (p = inventory; p != NULL; p = p->next)
 	{
 		data.number = p->number;
-		sprintf(data.name,"%s", p->name);
+		sprintf(data.name, "%s", p->name);
 		data.on_hand = p->on_hand;
 		fwrite(&data, sizeof(struct file_part), 1, fp);
 	}
@@ -237,10 +237,10 @@ void save()
 void recover()
 {
 	FILE *fp;
-	struct part *new_node, *prev = NULL, *cur;
+	struct part *new_node, *prev = NULL;
 	char route[100] = FILE_ROUTE;
 	char filename[100];
-	
+
 	printf("Enter name of input file: ");
 	scanf("%s", filename);
 	strcat(route, filename);
@@ -259,32 +259,33 @@ void recover()
 		return;
 	}
 
-	if (fread(&data, sizeof(struct file_part), 1, fp) != 0)
-	{
-		sprintf(new_node->name, "%s", data.name);
-		new_node->number = data.number;
-		new_node->on_hand = data.on_hand;
-		new_node->next = NULL;
-	}
-	else
+	if (fread(&data, sizeof(struct file_part), 1, fp) == 0)
 		return;
 
 	inventory = new_node;
+	sprintf(new_node->name, "%s", data.name);
+	new_node->number = data.number;
+	new_node->on_hand = data.on_hand;
+	new_node->next = NULL;
 
 	while (fread(&data, sizeof(struct file_part), 1, fp) != 0)
 	{
+		prev = new_node;
+		new_node->next = malloc(sizeof(struct part));
+		if (new_node->next == NULL)
+		{
+			printf("Database is full; can't"
+				"add  more parts.\n");
+			exit(EXIT_FAILURE);
+		}
+		new_node = new_node->next;
+
 		sprintf(new_node->name, "%s", data.name);
 		new_node->number = data.number;
 		new_node->on_hand = data.on_hand;
-
-		for (cur = inventory, prev = NULL; \
-			cur != NULL; prev = cur, cur = cur->next)
-			;
-		new_node->next = cur;
-		prev->next = new_node;
 	}
+	new_node->next = NULL;
 
-	free(new_node);
 	fclose(fp);
 	printf("Recover successfully\n");
 
